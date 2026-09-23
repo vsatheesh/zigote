@@ -1,0 +1,5 @@
+name: zig016
+channels: 
+  - conda-forge
+dependencies:
+  - zig=0.16
