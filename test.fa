@@ -1,0 +1,27 @@
+>test
+GG CC
+>seq1 multi-line record
+ACGTACGTAC
+GTACGTAC
+TTAA
+>soft_masked lowercase and IUPAC codes
+acgtNNNNRYKMacgt
+>   leading_space leading whitespace is skipped
+ACGT
+>multi_space    extra spaces before desc
+ACGT
+>tab_sep	desc after a tab
+AC	GT
+>empty_seq header only
+>blank_lines
+
+ACGT
+   
+ACGT
+
+>
+TTGG
+>crlf windows line endings
+ACGT
+>no_final_newline
+ACGT
