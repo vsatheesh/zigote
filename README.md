@@ -10,6 +10,19 @@ The project is named after the zygote—the first cell from which an organism gr
 
 ZIGote is in its initial development stage. Its API is not yet stable.
 
+## Try it
+
+Requires Zig 0.16.0.
+
+```sh
+zig build test                          # run the test suite
+zig build -Doptimize=ReleaseFast        # build the smoke-test tool
+./zig-out/bin/zigote genome.fa          # summarize a FASTA file
+gunzip -c genome.fa.gz | ./zig-out/bin/zigote -   # gzip is not built in yet
+```
+
+Behavior is defined in [`specs/`](specs/).
+
 ## Planned modules
 
 - `zigote.fasta`

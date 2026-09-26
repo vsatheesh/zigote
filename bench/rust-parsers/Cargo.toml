@@ -1,0 +1,20 @@
+[package]
+name = "rust-parsers"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "rust-bench"
+path = "src/main.rs"
+
+[dependencies]
+bio = "4.0.1"
+needletail = "0.7.3"
+noodles-fasta = "0.58.0"
+paraseq = { version = "0.6.0", default-features = false }
+seq_io = "0.3.4"
+
+[profile.release]
+lto = true
+codegen-units = 1
