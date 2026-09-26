@@ -83,3 +83,10 @@ Fixtures are inline byte strings in `src/fasta.zig`, read through `std.Io.Reader
 - Streaming: every single-record fixture is also parsed through 1- and 3-byte reader buffers, which splits lines and `\r\n` across reads.
 - Errors repeat on later calls (FA-R18); spaces inside and after sequence lines are removed (FA-R19).
 - Property test: reformatting a record's line width never changes the parsed `seq`.
+
+## Known limitations 
+
+- What: files with Mac line endings, a bare `\r` with no `\n`.
+- What happens: only `\n` ends a line (FA-R3), so the whole file is read as one header line. the result is one record whose id and description contain everything, with an empty sequence and no error. 
+- Status: not supported in v0.1. A later version could detect it and return an error.
+
