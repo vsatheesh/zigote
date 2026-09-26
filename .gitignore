@@ -7,3 +7,4 @@ bench/rust-parsers/target/
 bench/kseq/count
 bench/kseq/count-read
 *.fai
+TAIR10_genome.fa
