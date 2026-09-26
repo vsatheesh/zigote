@@ -1,0 +1,9 @@
+.zig-cache/
+zig-out/
+*.o
+bench/data/
+bench/results/
+bench/rust-parsers/target/
+bench/kseq/count
+bench/kseq/count-read
+*.fai
