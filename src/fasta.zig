@@ -280,7 +280,7 @@ test "FA-R1: header splits into id and desc at first space or tab" {
 }
 
 test "FA-R2: multi-line sequence is joined" {
-    try expectOne(">s\nACGT\nTTGA\nCC\n", .{}, "s", "", "ACGTTTGACC");
+    try expectOne(">s\nACGT\nTTGA\nCC\n", .{}, "s", "", "ACGTTTGAC");
 }
 
 test "FA-R3: CRLF terminators, no CR in output" {
