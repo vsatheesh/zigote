@@ -15,9 +15,9 @@ Order of work and progress. Each feature follows the workflow in
 - [x] Merge `housekeeping` into `main`
 
 ## 1. CI
-- [ ] GitHub Actions workflow with Zig pinned to 0.16.0
-- [ ] `zig build test` in Debug and ReleaseFast
-- [ ] Linux and macOS
+- [x] GitHub Actions workflow with Zig pinned to 0.16.0
+- [x] `zig build test` in Debug and ReleaseFast
+- [x] Linux and macOS
 
 ## 1b. Parser warm-ups (after CI)
 - [ ] Simplify `OwnedRecord.deinit`
