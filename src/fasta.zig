@@ -41,11 +41,10 @@ pub const OwnedRecord = struct {
     seq: []const u8,
 
     pub fn deinit(self: OwnedRecord, allocator: Allocator) void {
-        // id, desc and seq are consecutive slices of a single allocation.
+        // id, desc and seq are consecutive slices of a single allocation, which
+        // starts at self.id.ptr even when id is empty (see dupe).
         const total = self.id.len + self.desc.len + self.seq.len;
-        if (total == 0) return;
-        const start: [*]const u8 = if (self.id.len > 0) self.id.ptr else if (self.desc.len > 0) self.desc.ptr else self.seq.ptr;
-        allocator.free(start[0..total]);
+        allocator.free(self.id.ptr[0..total]);
     }
 };
 
@@ -403,6 +402,50 @@ test "FA-R13: dupe outlives the next call and is freed by the caller" {
     try testing.expectEqualStrings("a", owned.id);
     try testing.expectEqualStrings("desc", owned.desc);
     try testing.expectEqualStrings("AAAA", owned.seq);
+}
+
+test "FA-R13: dupe with empty id frees correctly" {
+    const record = Record{
+        .id = "",
+        .desc = "description",
+        .seq = "ATCG",
+    };
+
+    const owned = try record.dupe(testing.allocator);
+    defer owned.deinit(testing.allocator);
+    try testing.expectEqualStrings("", owned.id);
+    try testing.expectEqualStrings("description", owned.desc);
+    try testing.expectEqualStrings("ATCG", owned.seq);
+}
+
+test "FA-R13: dupe with an all empty record frees correctly" {
+    const record = Record{
+        .id = "",
+        .desc = "",
+        .seq = "",
+    };
+
+    const owned = try record.dupe(testing.allocator);
+    defer owned.deinit(testing.allocator);
+
+    try testing.expectEqualStrings("", owned.id);
+    try testing.expectEqualStrings("", owned.desc);
+    try testing.expectEqualStrings("", owned.seq);
+}
+
+test "FA-R13: dupe with a large record" {
+    const record = Record{
+        .id = "a",
+        .desc = "description",
+        .seq = "A" ** 100_000,
+    };
+
+    const owned = try record.dupe(testing.allocator);
+    defer owned.deinit(testing.allocator);
+
+    try testing.expectEqualStrings("a", owned.id);
+    try testing.expectEqualStrings("description", owned.desc);
+    try testing.expectEqualStrings("A" ** 100_000, owned.seq);
 }
 
 test "FA-R14: max_record_size boundary" {

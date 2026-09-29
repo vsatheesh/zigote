@@ -20,7 +20,7 @@ Order of work and progress. Each feature follows the workflow in
 - [x] Linux and macOS
 
 ## 1b. Parser warm-ups (after CI)
-- [ ] Simplify `OwnedRecord.deinit`
+- [x] Simplify `OwnedRecord.deinit`
 - [ ] Handle or document a zero-size reader buffer
 
 ## 1c. Release binaries
