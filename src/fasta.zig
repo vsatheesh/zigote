@@ -41,11 +41,9 @@ pub const OwnedRecord = struct {
     seq: []const u8,
 
     pub fn deinit(self: OwnedRecord, allocator: Allocator) void {
-        // id, desc and seq are consecutive slices of a single allocation.
+        // id, desc and seq are consecutive slices of a single allcoation, which starts ar self.id.ptr even when id is empty (see dupe).
         const total = self.id.len + self.desc.len + self.seq.len;
-        if (total == 0) return;
-        const start: [*]const u8 = if (self.id.len > 0) self.id.ptr else if (self.desc.len > 0) self.desc.ptr else self.seq.ptr;
-        allocator.free(start[0..total]);
+        allocator.free(self.id.ptr[0..total]);
     }
 };
 
