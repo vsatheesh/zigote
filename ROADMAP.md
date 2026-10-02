@@ -21,7 +21,7 @@ Order of work and progress. Each feature follows the workflow in
 
 ## 1b. Parser warm-ups (after CI)
 - [x] Simplify `OwnedRecord.deinit`
-- [ ] Handle or document a zero-size reader buffer
+- [x] Handle or document a zero-size reader buffer
 
 ## 1c. Release binaries
 - [ ] Spec for the `zigote` command-line tool (commands, output format)

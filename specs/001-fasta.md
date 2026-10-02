@@ -51,6 +51,7 @@ defer fp.deinit();
 | FA-R17 | The whole run of whitespace between `id` and `desc` is skipped, so `>foo   bar` yields desc `bar`. Trailing whitespace on the header line is preserved verbatim in `desc` (`>foo bar  ` yields `bar  `), except for the line terminator (FA-R3). If only whitespace follows the id, `desc` is empty. |
 | FA-R18 | Errors are terminal. After `next()` returns an error, every later call returns the same error without reading further. |
 | FA-R19 | Spaces and tabs inside sequence lines are removed from `seq`, including trailing ones (`AC GT  ` contributes `ACGT`). |
+| FA-R20 | A streaming reader passed to `Parser.init` must have a buffer of at least 1 byte. zigote doesn't check this itself, and `std.Io.Reader` asserts it in safe builds when it fills. A fixed reader over an empty slice is valid (FA-R9). This is a programmer error rather than an input error. |
 
 ## Decisions
 
@@ -61,6 +62,7 @@ defer fp.deinit();
 5. **Empty headers** (FA-R15, FA-R17). Permissive by default. A future opt-in `strict: bool` option is out of scope for v0.1.
 6. **Errors are terminal** (FA-R18). Resynchronizing to the next header is possible later, but v0.1 keeps error behavior simple and predictable.
 7. **Whitespace in sequence** (FA-R6, FA-R19). Hand-edited files often carry stray spaces; removing them keeps `seq` usable for downstream tools. Biopython's `SimpleFastaParser` is believed to remove spaces too (not yet verified).
+8. **Document, don't check, a zero-size buffer** (FA-R20). `init` does not assert on the buffer length: a fixed reader over empty input also has a 0-byte buffer and is valid (FA-R9), and `init` cannot tell a fixed reader from a streaming one. It does not return an error either: for a streaming reader the buffer size is fixed in the caller's code, so a zero-size buffer is a bug, not bad input, and `std.Io.Reader` already asserts on it when it fills.
 
 ## Known differences from seqkit
 
@@ -83,10 +85,11 @@ Fixtures are inline byte strings in `src/fasta.zig`, read through `std.Io.Reader
 - Streaming: every single-record fixture is also parsed through 1- and 3-byte reader buffers, which splits lines and `\r\n` across reads.
 - Errors repeat on later calls (FA-R18); spaces inside and after sequence lines are removed (FA-R19).
 - Property test: reformatting a record's line width never changes the parsed `seq`.
+- Zero-size buffer (FA-R20): an assert failure would crash the test runner, so it isn't tested. The 1-byte buffer runs in `expectOne` cover the smallest valid buffer. FA-R9 covers the empty fixed reader.
 
-## Known limitations 
+## Known limitations
 
 - What: files with Mac line endings, a bare `\r` with no `\n`.
-- What happens: only `\n` ends a line (FA-R3), so the whole file is read as one header line. the result is one record whose id and description contain everything, with an empty sequence and no error. 
+- What happens: only `\n` ends a line (FA-R3), so the whole file is read as one header line. The result is one record whose id and description contain everything, with an empty sequence and no error.
 - Status: not supported in v0.1. A later version could detect it and return an error.
 
