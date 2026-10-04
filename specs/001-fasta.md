@@ -21,7 +21,7 @@ while (try parser.next()) |rec| {
     defer owned.deinit(gpa);
 }
 
-// Convenience: composes the core API, no separate parse path.
+// Planned, not in 0.1.0 (FA-R16). Convenience: composes the core API, no separate parse path.
 var fp = try zigote.fasta.openFile(allocator, io, path, .{});
 defer fp.deinit();
 ```
@@ -47,7 +47,7 @@ defer fp.deinit();
 | FA-R13 | `Record.dupe(allocator)` returns an `OwnedRecord` allocated with the caller's allocator. The caller frees it with `OwnedRecord.deinit(allocator)`. The parser never allocates on behalf of `dupe`. |
 | FA-R14 | `Options.max_record_size: ?usize = null`. `null` means unbounded. The record size is the header text after `>` (as written, without the terminator) plus the stored `seq` bytes. When set, a larger record returns `error.RecordTooLarge`; a record of exactly `max_record_size` bytes is accepted. Lines before the first header do not count. |
 | FA-R15 | "Whitespace" means space and tab only. Leading whitespace after `>` is skipped. A bare `>` or a header that is only whitespace after `>` yields empty `id` and empty `desc`, not an error. `> foo bar` yields id `foo`, desc `bar`. |
-| FA-R16 | `openFile(allocator, io, path, options)` takes a `std.Io` instance, as file opening does in Zig 0.16. It only opens the file, wraps it in a buffered reader and constructs the core `Parser`. Implemented after the core parser. Behavior must be identical to the reader-based core. |
+| FA-R16 | `openFile(allocator, io, path, options)` takes a `std.Io` instance, as file opening does in Zig 0.16. It only opens the file, wraps it in a buffered reader and constructs the core `Parser`. **Not in 0.1.0**: planned for after the port to Zig 0.17, whose `std.Io` it is written against. Behavior must be identical to the reader-based core. |
 | FA-R17 | The whole run of whitespace between `id` and `desc` is skipped, so `>foo   bar` yields desc `bar`. Trailing whitespace on the header line is preserved verbatim in `desc` (`>foo bar  ` yields `bar  `), except for the line terminator (FA-R3). If only whitespace follows the id, `desc` is empty. |
 | FA-R18 | Errors are terminal. After `next()` returns an error, every later call returns the same error without reading further. |
 | FA-R19 | Spaces and tabs inside sequence lines are removed from `seq`, including trailing ones (`AC GT  ` contributes `ACGT`). |
@@ -81,7 +81,7 @@ Fixtures are inline byte strings in `src/fasta.zig`, read through `std.Io.Reader
 - `dupe` result stays valid after a later `next()`; use `std.testing.allocator` to catch leaks (FA-R13).
 - Buffer growth: a later, larger record allocates; a later, smaller one does not (FA-R11).
 - Record slices do not point into the reader's buffer (FA-R12).
-- `openFile` output equals reader-based output for the same fixtures (FA-R16).
+- `openFile` output equals reader-based output for the same fixtures (FA-R16, when implemented).
 - Streaming: every single-record fixture is also parsed through 1- and 3-byte reader buffers, which splits lines and `\r\n` across reads.
 - Errors repeat on later calls (FA-R18); spaces inside and after sequence lines are removed (FA-R19).
 - Property test: reformatting a record's line width never changes the parsed `seq`.

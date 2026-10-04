@@ -530,8 +530,8 @@ test "FA-R19: interleaved spaces and tabs on a long line" {
     try expectOne(">s\n" ++ unit ** 50 ++ "\n", .{}, "s", "", want ** 50);
 }
 
-// FA-R16 (openFile(allocator, io, path, options)) is implemented and tested
-// after the core parser.
+// FA-R16 (openFile(allocator, io, path, options)) is not in 0.1.0; it is
+// implemented and tested after the port to Zig 0.17.
 
 test "property: line width never changes parsed seq" {
     const seq = "ACGTNacgtn" ** 13;
