@@ -16,5 +16,6 @@ Spec-driven development: behavior is written down and agreed **before** code.
 |------|--------|
 | [000-principles](000-principles.md) | Draft |
 | [001-fasta](001-fasta.md) | Accepted |
+| [005-cli](005-cli.md) | Accepted |
 
 Planned: 002-fastq, 003-gzip, 004-seq (owns alphabet validation, operating on slices from the parsers).

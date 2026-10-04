@@ -30,7 +30,7 @@ datasets=("$DATA/long.fa" "$DATA/short.fa" "$@")
 # Every parser must report the same record and residue counts before timing.
 counts() {
   local f=$1
-  echo "zigote $("$ZIGOTE" --parse-only "$f" | awk '{print $2}' | paste -sd' ' -)"
+  echo "zigote $("$ZIGOTE" stats --parse-only "$f" | awk '{print $2}' | paste -sd' ' -)"
   echo "kseq $(bench/kseq/count "$f")"
   echo "kseq-read $(bench/kseq/count-read "$f")"
   echo "seqtk $("$SEQTK" size "$f" | tr '\t' ' ')"
@@ -60,7 +60,7 @@ HF=(hyperfine -N --warmup 3 --runs 30 --style basic)
 for f in "${datasets[@]}"; do
   name=$(basename "$f" .fa)
   native=(
-    -n zigote "$ZIGOTE --parse-only $f"
+    -n zigote "$ZIGOTE stats --parse-only $f"
     -n kseq "bench/kseq/count $f"
     -n kseq-read "bench/kseq/count-read $f"
     -n seqtk "$SEQTK size $f"

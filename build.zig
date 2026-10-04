@@ -1,4 +1,5 @@
 const std = @import("std");
+const manifest = @import("build.zig.zon");
 
 // Although this function looks imperative, it does not perform the build
 // directly and instead it mutates the build graph (`b`) that will be then
@@ -86,6 +87,11 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    // `zigote --version` prints the version from build.zig.zon (CL-R9).
+    const options = b.addOptions();
+    options.addOption([]const u8, "version", manifest.version);
+    exe.root_module.addOptions("build_options", options);
+
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
     // step). By default the install prefix is `zig-out/` but can be overridden
@@ -144,6 +150,32 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&run_mod_tests.step);
     test_step.dependOn(&run_exe_tests.step);
+
+    // End-to-end checks of the built binary: arguments, exit codes, stdout and
+    // stderr (specs/005-cli.md). Input comes from stdin so the output does not
+    // contain a machine-specific path.
+    const fasta = ">a desc\nACGT\n>b\nNNac\n";
+    const cli_checks = [_]struct { args: []const []const u8, stdin: ?[]const u8 = null, exit: u8 = 0, stdout: ?[]const u8 = null, stderr: ?[]const u8 = null }{
+        .{ .args = &.{ "stats", "-" }, .stdin = fasta, .stdout = "file:          -\nrecords:       2\nresidues:      8\nlongest:       4\nshortest:      4\nN50:           4\nGC%:           50.00\nN:             2\nlowercase:     2 (25.00%)\nempty ids:     0\n" },
+        .{ .args = &.{"stats"}, .stdin = fasta, .stdout = "file:          -\nrecords:       2\nresidues:      8\nlongest:       4\nshortest:      4\nN50:           4\nGC%:           50.00\nN:             2\nlowercase:     2 (25.00%)\nempty ids:     0\n" },
+        .{ .args = &.{ "stats", "--parse-only" }, .stdin = fasta, .stdout = "records:       2\nresidues:      8\n" },
+        .{ .args = &.{"--version"}, .stdout = "zigote " ++ manifest.version ++ "\n" },
+        .{ .args = &.{"--help"}, .stdout = null },
+        .{ .args = &.{}, .exit = 2, .stderr = "zigote: missing command\n" },
+        .{ .args = &.{ "stats", "--bogus" }, .exit = 2, .stderr = "zigote: unknown option: --bogus\n" },
+        .{ .args = &.{ "stats", "a.fa", "b.fa" }, .exit = 2, .stderr = "zigote: only one input is accepted; extra argument: b.fa\n" },
+        .{ .args = &.{ "stats", "does-not-exist.fa" }, .exit = 1, .stderr = "zigote: cannot open does-not-exist.fa: FileNotFound\n" },
+        .{ .args = &.{"stats"}, .stdin = "ACGT\n>a\nAC\n", .exit = 1, .stderr = "zigote: -: line 1: MissingHeader\n" },
+    };
+    for (cli_checks) |check| {
+        const run = b.addRunArtifact(exe);
+        run.addArgs(check.args);
+        run.setStdIn(if (check.stdin) |bytes| .{ .bytes = bytes } else .{ .bytes = "" });
+        run.expectExitCode(check.exit);
+        if (check.stdout) |bytes| run.expectStdOutEqual(bytes);
+        if (check.stderr) |bytes| run.expectStdErrMatch(bytes);
+        test_step.dependOn(&run.step);
+    }
 
     // Just like flags, top level steps are also listed in the `--help` menu.
     //
