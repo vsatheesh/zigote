@@ -1,0 +1,64 @@
+name: Release
+
+# Builds the zigote binaries and publishes a GitHub Release when a version tag
+# is pushed. See specs/005-cli.md, "Release".
+on:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TARGETS: x86_64-linux-musl aarch64-linux-musl x86_64-macos aarch64-macos x86_64-windows
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: "0.16.0"
+      - name: Run tests
+        run: zig build test --summary line
+      - name: Check the tag matches build.zig.zon (CL-R9)
+        run: |
+          zig build
+          version=$(./zig-out/bin/zigote --version | cut -d' ' -f2)
+          case "$GITHUB_REF_NAME" in
+            "v$version" | "v$version"-*) ;;
+            *) echo "tag $GITHUB_REF_NAME does not match version $version in build.zig.zon"; exit 1 ;;
+          esac
+      - name: Build and package
+        run: |
+          mkdir -p dist stage
+          for target in $TARGETS; do
+            zig build -Doptimize=ReleaseSafe -Dtarget="$target" --prefix "out/$target"
+            name="zigote-$GITHUB_REF_NAME-$target"
+            mkdir "stage/$name"
+            cp LICENSE README.md "stage/$name/"
+            if [[ $target == *windows* ]]; then
+              cp "out/$target/bin/zigote.exe" "stage/$name/"
+              (cd stage && zip -qr "../dist/$name.zip" "$name")
+            else
+              cp "out/$target/bin/zigote" "stage/$name/"
+              tar -czf "dist/$name.tar.gz" -C stage "$name"
+            fi
+          done
+          (cd dist && sha256sum * > SHA256SUMS)
+          ls -l dist
+      - name: Smoke-test the Linux x86-64 binary
+        run: |
+          bin="stage/zigote-$GITHUB_REF_NAME-x86_64-linux-musl/zigote"
+          got=$(printf '>a\nACGT\n>b\nNN\n' | "$bin" stats --parse-only)
+          want=$(printf 'records:       2\nresidues:      6')
+          [[ "$got" == "$want" ]] || { echo "unexpected output:"; echo "$got"; exit 1; }
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=(--title "zigote $GITHUB_REF_NAME" --generate-notes)
+          [[ $GITHUB_REF_NAME == *-* ]] && flags+=(--prerelease)
+          gh release create "$GITHUB_REF_NAME" dist/* "${flags[@]}"

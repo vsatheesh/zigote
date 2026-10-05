@@ -1,6 +1,6 @@
 # Benchmarks
 
-Compares `zigote --parse-only` with other FASTA parsers in C, Rust, Go and Python.
+Compares `zigote stats --parse-only` with other FASTA parsers in C, Rust, Go and Python.
 
 ## What each command does
 
@@ -8,7 +8,7 @@ Each parser reads the whole file and reports the record count and total residues
 
 | Name | Language | What runs |
 |---|---|---|
-| zigote | Zig | `zig-out/bin/zigote --parse-only FILE` |
+| zigote | Zig | `zig-out/bin/zigote stats --parse-only FILE` |
 | kseq | C | `kseq/count.c`: `kseq_read` loop, reading through zlib `gzread` as seqtk and most kseq users do |
 | kseq-read | C | the same program built with `-DPLAIN_READ`, reading with `read(2)` and skipping zlib's extra copy |
 | seqtk | C (kseq) | `seqtk size FILE` |

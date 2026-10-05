@@ -23,10 +23,19 @@ Order of work and progress. Each feature follows the workflow in
 - [x] Simplify `OwnedRecord.deinit`
 - [x] Handle or document a zero-size reader buffer
 
-## 1c. Release binaries
-- [ ] Spec for the `zigote` command-line tool (commands, output format)
-- [ ] Release workflow: build Linux (musl), macOS and Windows on version tags
-- [ ] Attach binaries to GitHub Releases
+## 1c. Release v0.1.0 (Zig 0.16)
+- [x] Spec for the `zigote` command-line tool (spec 005)
+- [x] Version 0.1.0 in `build.zig.zon`, printed by `zigote --version`
+- [x] Release workflow: build Linux (musl), macOS and Windows on version tags
+- [x] README: downloads, usage, library use, limitations
+- [ ] Dry run: push tag `v0.1.0-rc1`, check the release, delete it
+- [ ] Push tag `v0.1.0`: binaries attached to the GitHub Release
+
+## 1d. Port to Zig 0.17
+- [ ] Read the 0.17.0 release notes
+- [ ] Fix `src/` and `build.zig`; bump `minimum_zig_version` and the CI and release pins
+- [ ] Re-run `bench/run.sh`
+- [ ] Release as 0.2.0
 
 ## 2. `openFile` (FA-R16)
 - [ ] Spec: who owns the file, buffer, reader and parser; whether the object may move; cleanup on failure
