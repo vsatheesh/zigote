@@ -14,13 +14,13 @@ Version 0.1.0: a streaming FASTA parser (`zigote.fasta`) and a `zigote` command-
 
 Download the archive for your system from the [Releases](https://github.com/vsatheesh/zigote/releases) page. It contains a single binary with no dependencies; Zig is not needed.
 
-| System | Archive |
-|--------|---------|
-| Linux x86-64 | `zigote-vVERSION-x86_64-linux-musl.tar.gz` |
-| Linux ARM64 | `zigote-vVERSION-aarch64-linux-musl.tar.gz` |
-| macOS Apple silicon | `zigote-vVERSION-aarch64-macos.tar.gz` |
-| macOS Intel | `zigote-vVERSION-x86_64-macos.tar.gz` |
-| Windows x86-64 | `zigote-vVERSION-x86_64-windows.zip` |
+| System              | Archive                                      |
+|---------------------|----------------------------------------------|
+| Linux x86-64        | `zigote-vVERSION-x86_64-linux-musl.tar.gz`   |
+| Linux ARM64         | `zigote-vVERSION-aarch64-linux-musl.tar.gz`  |
+| macOS Apple silicon | `zigote-vVERSION-aarch64-macos.tar.gz`       |
+| macOS Intel         | `zigote-vVERSION-x86_64-macos.tar.gz`        |
+| Windows x86-64      | `zigote-vVERSION-x86_64-windows.zip`         |
 
 `SHA256SUMS` on the same page lists the checksums (`shasum -a 256 -c SHA256SUMS --ignore-missing`).
 
